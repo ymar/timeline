@@ -39,7 +39,16 @@ function groupEntriesByDay(entries: TimeEntry[]): GroupedTimeEntries {
   const grouped: GroupedTimeEntries = {};
 
   entries.forEach((entry: TimeEntry) => {
-    const date = parseISO(entry.date);
+    let date: Date;
+    if (typeof entry.date === 'string') {
+      date = parseISO(entry.date);
+    } else if (entry.date instanceof Date) {
+      date = entry.date;
+    } else {
+      console.error('Invalid date format for entry:', entry);
+      return; // Skip this entry
+    }
+
     const dayKey = format(date, 'yyyy-MM-dd');
 
     if (!grouped[dayKey]) {

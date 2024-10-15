@@ -35,7 +35,7 @@ export async function getWeeklyTimeEntries() {
       id: entry._id.toString(),
       project: entry.project.name,
       description: entry.description,
-      date: entry.date.toISOString().split('T')[0],
+      date: entry.date, // This is already a Date object
       duration: entry.duration,
     }));
   } catch (error) {
