@@ -1,17 +1,23 @@
-import mongoose from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 import { hash } from 'bcryptjs';
 
-const userSchema = new mongoose.Schema({
+export interface IUser extends Document {
+  name: string
+  email: string
+  password: string
+}
+
+const UserSchema: Schema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  password: { type: String, required: true }
 }, { timestamps: true });
 
-userSchema.pre('save', async function (next) {
+UserSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     this.password = await hash(this.password, 10);
   }
   next();
 });
 
-export const User = mongoose.models.User || mongoose.model('User', userSchema, 'your_custom_users_collection');
+export const User = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

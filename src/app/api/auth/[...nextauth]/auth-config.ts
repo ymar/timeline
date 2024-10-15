@@ -1,24 +1,15 @@
 import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import { compare } from "bcryptjs";
+import { connectToDatabase } from "@/app/lib/db";
 import { User } from "@/models/User";
-import { dbConnect, getMongoClientPromise } from "@/app/lib/db";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
-  adapter: MongoDBAdapter(getMongoClientPromise(), {
-    collections: {
-      Users: "your_custom_users_collection",
-      Accounts: "your_custom_accounts_collection",
-      Sessions: "your_custom_sessions_collection",
-      VerificationTokens: "your_custom_verification_tokens_collection",
-    },
-  }),
   providers: [
     CredentialsProvider({
-      name: "credentials",
+      name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
+        email: { label: "Email", type: "text" },
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
@@ -26,39 +17,28 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
 
-        try {
-          await dbConnect();
+        await connectToDatabase();
 
-          const user = await User.findOne({ email: credentials.email });
+        const user = await User.findOne({ email: credentials.email });
 
-          if (!user) {
-            return null;
-          }
-
-          const isPasswordValid = await compare(credentials.password, user.password);
-
-          if (!isPasswordValid) {
-            return null;
-          }
-
-          return {
-            id: user._id.toString(),
-            email: user.email,
-            name: user.name,
-          };
-        } catch (error) {
-          console.error("Error in authorize function:", error);
+        if (!user) {
           return null;
         }
+
+        const isPasswordCorrect = await bcrypt.compare(credentials.password, user.password);
+
+        if (!isPasswordCorrect) {
+          return null;
+        }
+
+        return {
+          id: user._id.toString(),
+          email: user.email,
+          name: user.name
+        };
       }
     })
   ],
-  session: {
-    strategy: "jwt",
-  },
-  pages: {
-    signIn: "/login",
-  },
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
@@ -68,10 +48,18 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        (session.user as any).id = token.id as string;
+        session.user.id = token.id as string;
       }
       return session;
-    },
+    }
   },
-  debug: process.env.NODE_ENV === "development",
+  pages: {
+    signIn: '/login',
+  },
+  session: {
+    strategy: "jwt"
+  },
+  secret: process.env.NEXTAUTH_SECRET,
 };
+
+export default authOptions;

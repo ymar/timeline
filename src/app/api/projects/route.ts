@@ -1,15 +1,12 @@
 import { NextResponse } from 'next/server';
-import { connectToDatabase } from '@/app/lib/db';
-import { Project } from '@/models/Project';
-import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/app/api/auth/[...nextauth]/auth-config';
+import { connectToDatabase } from '@/lib/db';
+import { Project } from '@/models/Project'; // Changed to named import
 
 export async function GET() {
   try {
     await connectToDatabase();
-    // Fetch all projects, not just active ones
-    const projects = await Project.find().select('_id name');
-    return NextResponse.json(projects);
+    const projects = await Project.find({}).select('_id name');
+    return NextResponse.json({ projects });
   } catch (error) {
     console.error('Error fetching projects:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
@@ -18,11 +15,6 @@ export async function GET() {
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-
     await connectToDatabase();
     const { name, description } = await req.json();
 

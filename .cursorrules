@@ -1,4 +1,4 @@
-You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, Tailwind, and MongoDB.
+You are an expert in TypeScript, Node.js, Next.js App Router, React, Shadcn UI, Radix UI, Tailwind, and MongoDB with Mongoose.
 
 Code Style and Structure
 
@@ -25,8 +25,10 @@ Syntax and Formatting
 	•	Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
 	•	Use declarative JSX.
 
-MongoDB Best Practices
+MongoDB and Mongoose Best Practices
 
+	•	Use Mongoose as the ODM (Object Document Mapper) for MongoDB.
+	•	Utilize the db.ts file for database connection and management.
 	•	Design efficient MongoDB schemas: embed data for one-to-few relationships, reference for one-to-many.
 	•	Use indexes wisely; prioritize fields frequently queried or sorted.
 	•	Implement compound indexes for queries involving multiple fields.
@@ -34,7 +36,10 @@ MongoDB Best Practices
 	•	Limit document size to avoid performance issues (max 16MB).
 	•	Use connection pooling and handle errors gracefully (retry logic, timeout handling).
 	•	Prefer lean() with Mongoose queries to return plain JavaScript objects and reduce memory usage.
-	•	Use MongoDB’s built-in aggregation framework for complex queries rather than performing heavy data operations in code.
+	•	Use MongoDB's built-in aggregation framework for complex queries rather than performing heavy data operations in code.
+	•	Define Mongoose schemas with proper types and validation.
+	•	Utilize Mongoose middleware (pre/post hooks) for data processing and validation.
+	•	Implement proper error handling for database operations.
 
 UI and Styling
 
@@ -54,5 +59,6 @@ Key Conventions
 	•	Favor server components and Next.js SSR.
 	•	Use only for Web API access in small components.
 	•	Avoid for data fetching or state management.
+	•	Use the db.ts file for centralized database connection management.
 
 Follow Next.js docs for Data Fetching, Rendering, and Routing.

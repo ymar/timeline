@@ -1,8 +1,6 @@
 import mongoose from 'mongoose'
-import { MongoClient } from 'mongodb'
 
 const MONGODB_URI = process.env.MONGODB_URI
-const DB_NAME = 'your_database_name' // Hardcoded database name
 
 if (!MONGODB_URI) {
     throw new Error('Please define the MONGODB_URI environment variable inside .env.local')
@@ -11,10 +9,10 @@ if (!MONGODB_URI) {
 let cached = (global as any).mongoose
 
 if (!cached) {
-    cached = (global as any).mongoose = { conn: null, promise: null, clientPromise: null }
+    cached = (global as any).mongoose = { conn: null, promise: null }
 }
 
-export async function dbConnect() {
+export async function connectToDatabase() {
     if (cached.conn) {
         return cached.conn
     }
@@ -31,7 +29,6 @@ export async function dbConnect() {
 
     try {
         cached.conn = await cached.promise
-        cached.conn.connection.useDb(DB_NAME)
     } catch (e) {
         cached.promise = null
         throw e
@@ -39,18 +36,3 @@ export async function dbConnect() {
 
     return cached.conn
 }
-
-export async function getMongoClientPromise() {
-    if (cached.clientPromise) {
-        const client = await cached.clientPromise
-        return client.db(DB_NAME)
-    }
-
-    const client = new MongoClient(MONGODB_URI!)
-    cached.clientPromise = client.connect()
-
-    const connectedClient = await cached.clientPromise
-    return connectedClient.db(DB_NAME)
-}
-
-export { dbConnect as connectToDatabase }

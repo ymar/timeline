@@ -23,7 +23,7 @@ export function NavBar() {
                 Projects
               </Link>
               <Link href="/time-entry" className="hover:text-gray-300">
-                Add Time Entry
+                Time Entry
               </Link>
               <Button onClick={() => signOut()} variant="ghost">
                 Sign Out
