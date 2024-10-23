@@ -1,24 +1,13 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { Providers } from '@/components/Providers';
-import { NavBar } from '@/components/NavBar';
-import { Toaster } from "@/components/ui/toaster"
+import Navbar from "@/components/Navbar";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "My App",
-  description: "Welcome to My App",
+  title: "Time Tracking App",
+  description: "Track your time and manage projects",
 };
 
 export default function RootLayout({
@@ -28,14 +17,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} font-sans`}>
-        <Providers>
-          <NavBar />
-          <main className="container mx-auto mt-8 px-4">
-            {children}
-          </main>
-          <Toaster />
-        </Providers>
+      <body className={inter.className}>
+        <Navbar />
+        <main className="min-h-screen bg-gray-50 pt-16">
+          {children}
+        </main>
       </body>
     </html>
   );

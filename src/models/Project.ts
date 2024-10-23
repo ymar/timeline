@@ -1,17 +1,12 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose from 'mongoose';
 
-export interface IProject extends Document {
-  name: string;
-  description?: string;
-  client?: mongoose.Types.ObjectId;
-  user?: mongoose.Types.ObjectId;
-}
-
-const ProjectSchema: Schema = new Schema({
+const ProjectSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  client: { type: String, required: true },
   description: { type: String },
-  client: { type: Schema.Types.ObjectId, ref: 'Client' },
-  user: { type: Schema.Types.ObjectId, ref: 'User' },
-}, { timestamps: true });
+  isActive: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
 
-export const Project = mongoose.models.Project || mongoose.model<IProject>('Project', ProjectSchema);
+export const Project = mongoose.models.Project || mongoose.model('Project', ProjectSchema);

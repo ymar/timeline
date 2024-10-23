@@ -1,13 +1,12 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose from 'mongoose';
 
-export interface IClient extends Document {
-  name: string;
-  user: mongoose.Types.ObjectId;
-}
-
-const ClientSchema: Schema = new Schema({
+const ClientSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-}, { timestamps: true });
+  email: { type: String, required: true },
+  phone: { type: String },
+  address: { type: String },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now },
+});
 
-export const Client = mongoose.models.Client || mongoose.model<IClient>('Client', ClientSchema);
+export const Client = mongoose.models.Client || mongoose.model('Client', ClientSchema);
