@@ -1,11 +1,17 @@
+import { Metadata } from "next"
 import WeeklyTimeEntry from '@/components/WeeklyTimeEntry';
+
+export const metadata: Metadata = {
+  title: "Dashboard - Timeline",
+  description: "Welcome to your Timeline dashboard",
+}
 
 export default function DashboardPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="grid grid-cols-1">
+    <div className="">
+
         <WeeklyTimeEntry />
-      </div>
+
     </div>
   );
 }

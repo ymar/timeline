@@ -5,6 +5,8 @@ const ProjectSchema = new mongoose.Schema({
   client: { type: String, required: true },
   description: { type: String },
   isActive: { type: Boolean, default: true },
+  budgetHours: { type: Number, default: 0 }, // Total budgeted hours
+  hourlyRate: { type: Number, default: 0 }, // Hourly rate for the project
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
 });

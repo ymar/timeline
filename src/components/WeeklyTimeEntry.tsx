@@ -2,6 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar, Plus, Pencil, Trash2 } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils"; // Add this import
 import TimeEntryModal from './TimeEntryModal';
 
 interface TimeEntry {
@@ -10,6 +15,8 @@ interface TimeEntry {
   date: string;
   duration: number;
   notes: string;
+  task?: string; // Make task optional to match the model
+  user: string; // Add user field
 }
 
 interface Project {
@@ -135,185 +142,167 @@ const WeeklyTimeEntry = () => {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center">
-            <button
-              onClick={() => navigateWeek('prev')}
-              className="p-1.5 hover:bg-gray-100 rounded-full"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-            <button
-              onClick={() => navigateWeek('next')}
-              className="p-1.5 hover:bg-gray-100 rounded-full"
-            >
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <h2 className="text-lg font-medium">
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+        <div className="flex items-center space-x-2">
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigateWeek('prev')}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="ghost" 
+            size="icon"
+            onClick={() => navigateWeek('next')}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+          <CardTitle className="text-lg font-medium">
             {weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - {' '}
             {weekDates[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
-          </h2>
-          <button
+          </CardTitle>
+          <Button 
+            variant="outline" 
+            size="sm"
             onClick={goToToday}
-            className="flex items-center px-2 py-1 text-xs bg-gray-100 hover:bg-gray-200 rounded"
+            className="flex items-center"
           >
             <Calendar className="h-3 w-3 mr-1" />
             Today
-          </button>
-          <span className="text-sm text-gray-500 ml-2">
+          </Button>
+          <Badge variant="secondary">
             Week Total: {formatDuration(weekTotal)}h
-          </span>
+          </Badge>
         </div>
-      </div>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-7 gap-4">
+          {weekDates.map((date) => {
+            const entries = getEntriesForDate(date);
+            const totalHours = entries.reduce((sum, entry) => sum + entry.duration, 0);
+            const isToday = new Date().toDateString() === date.toDateString();
+            const isSelected = selectedDate?.toDateString() === date.toDateString();
 
-      <div className="grid grid-cols-7 gap-4">
-        {weekDates.map((date) => {
-          const entries = getEntriesForDate(date);
-          const totalHours = entries.reduce((sum, entry) => sum + entry.duration, 0);
-          const isToday = new Date().toDateString() === date.toDateString();
-          const isSelected = selectedDate?.toDateString() === date.toDateString();
-
-          return (
-            <div
-              key={date.toISOString()}
-              className={`border rounded-lg p-4 cursor-pointer hover:border-blue-500 transition-colors ${
-                isToday ? 'border-blue-500' : ''
-              } ${isSelected ? 'bg-blue-50' : ''}`}
-              onClick={() => handleDayClick(date)}
-            >
-              <div className="text-sm font-medium text-gray-500">
-                {date.toLocaleDateString('en-US', { weekday: 'short' })}
-              </div>
-              <div className="font-bold mb-2">
-                {date.toLocaleDateString('en-US', { day: 'numeric' })}
-              </div>
-              <div className="space-y-2">
-                {entries.map(entry => (
-                  <div key={entry._id} className="text-sm">
-                    <div className="font-medium text-blue-600">
-                      {projects[entry.project]?.name}
-                    </div>
-                    <div className="text-gray-600">
-                      {formatDuration(entry.duration)}h
+            return (
+              <Card
+                key={date.toISOString()}
+                className={cn(
+                  "cursor-pointer hover:border-primary transition-colors",
+                  isToday && "border-blue-500",
+                  isSelected && "bg-accent"
+                )}
+                onClick={() => handleDayClick(date)}
+              >
+                <CardContent className="p-4">
+                  <div className="text-sm font-medium text-muted-foreground">
+                    {date.toLocaleDateString('en-US', { weekday: 'short' })}
+                  </div>
+                  <div className="font-bold mb-2">
+                    {date.toLocaleDateString('en-US', { day: 'numeric' })}
+                  </div>
+                  <div className="space-y-2">
+                    {entries.map(entry => (
+                      <div key={entry._id} className="text-sm">
+                        <div className="font-medium text-primary">
+                          {projects[entry.project]?.name}
+                        </div>
+                        <div className="text-muted-foreground">
+                          {formatDuration(entry.duration)}h
+                        </div>
+                      </div>
+                    ))}
+                    <div className="text-sm font-medium text-muted-foreground pt-2 border-t">
+                      Total: {formatDuration(totalHours)}h
                     </div>
                   </div>
-                ))}
-                <div className="text-sm font-medium text-gray-700 pt-2 border-t">
-                  Total: {formatDuration(totalHours)}h
-                </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Selected Day Details */}
-      {selectedDate && (
-        <div className="mt-8">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">
-              Entries for {selectedDate.toLocaleDateString('en-US', { 
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric'
-              })}
-            </h3>
-            <button
-              onClick={handleAddNewEntry}
-              className="bg-blue-500 text-white px-3 py-2 rounded-md hover:bg-blue-600 transition-colors flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Add Entry
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Project
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Client
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Hours
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Notes
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {getEntriesForDate(selectedDate).map((entry) => (
-                  <tr key={entry._id}>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm font-medium text-gray-900">
-                        {projects[entry.project]?.name}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-500">
-                        {projects[entry.project]?.client}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="text-sm text-gray-900">
-                        {formatDuration(entry.duration)}h
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className="text-sm text-gray-500">
-                        {entry.notes}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex space-x-2">
-                        <button
-                          onClick={() => handleEditEntry(entry)}
-                          className="text-blue-500 hover:text-blue-600"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDeleteEntry(entry._id)}
-                          className="text-red-500 hover:text-red-600"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-                {getEntriesForDate(selectedDate).length === 0 && (
-                  <tr>
-                    <td colSpan={5} className="px-6 py-4 text-center text-gray-500">
-                      No entries for this day. Click "Add Entry" to create one.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
-      )}
 
-      {showModal && selectedDate && (
-        <TimeEntryModal
-          date={selectedDate}
-          onClose={() => setShowModal(false)}
-          onSuccess={handleSuccess}
-          editingEntry={editingEntry}
-        />
-      )}
-    </div>
+        {selectedDate && (
+          <div className="mt-8">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">
+                Entries for {selectedDate.toLocaleDateString('en-US', { 
+                  weekday: 'long',
+                  month: 'long',
+                  day: 'numeric'
+                })}
+              </h3>
+              <Button onClick={handleAddNewEntry}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Entry
+              </Button>
+            </div>
+
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Project</TableHead>
+                    <TableHead>Client</TableHead>
+                    <TableHead>Hours</TableHead>
+                    <TableHead>Notes</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {getEntriesForDate(selectedDate).map((entry) => (
+                    <TableRow key={entry._id}>
+                      <TableCell className="font-medium">
+                        {projects[entry.project]?.name}
+                      </TableCell>
+                      <TableCell>{projects[entry.project]?.client}</TableCell>
+                      <TableCell>{formatDuration(entry.duration)}h</TableCell>
+                      <TableCell>{entry.notes}</TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditEntry(entry)}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteEntry(entry._id)}
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                  {getEntriesForDate(selectedDate).length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={5} className="text-center text-muted-foreground">
+                        No entries for this day. Click "Add Entry" to create one.
+                      </TableCell>
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        )}
+
+        {showModal && selectedDate && (
+          <TimeEntryModal
+            date={selectedDate}
+            onClose={() => setShowModal(false)}
+            onSuccess={handleSuccess}
+            editingEntry={editingEntry}
+          />
+        )}
+      </CardContent>
+    </Card>
   );
 };
 

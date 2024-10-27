@@ -2,6 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import { Trash2, Pencil } from 'lucide-react';
+import Link from 'next/link';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
 
 interface Project {
   _id: string;
@@ -60,85 +67,125 @@ const ProjectList = ({ refreshTrigger }: Props) => {
   };
 
   return (
-    <div className="bg-white shadow-md rounded-lg p-6">
-      <h2 className="text-2xl font-semibold mb-4">Project List</h2>
-      <div className="space-y-4">
-        {projects.map((project) => (
-          <div
-            key={project._id}
-            className="border rounded-lg p-4 flex justify-between items-start"
-          >
-            {editingProject?._id === project._id ? (
-              <div className="space-y-2 w-full">
-                <input
-                  type="text"
-                  value={editingProject.name}
-                  onChange={(e) =>
-                    setEditingProject({ ...editingProject, name: e.target.value })
-                  }
-                  className="w-full p-2 border rounded"
-                />
-                <select
-                  value={editingProject.client}
-                  onChange={(e) =>
-                    setEditingProject({ ...editingProject, client: e.target.value })
-                  }
-                  className="w-full p-2 border rounded bg-white"
-                >
-                  {clients.map((client) => (
-                    <option key={client._id} value={client.name}>
-                      {client.name}
-                    </option>
-                  ))}
-                </select>
-                <textarea
-                  value={editingProject.description}
-                  onChange={(e) =>
-                    setEditingProject({ ...editingProject, description: e.target.value })
-                  }
-                  className="w-full p-2 border rounded"
-                />
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => handleUpdate(editingProject)}
-                    className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-                  >
-                    Save
-                  </button>
-                  <button
-                    onClick={() => setEditingProject(null)}
-                    className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <>
-                <div>
-                  <h3 className="text-lg font-medium">{project.name}</h3>
-                  <p className="text-blue-600 font-medium">{project.client}</p>
-                  <p className="text-gray-500 mt-2">{project.description}</p>
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    onClick={() => setEditingProject(project)}
-                    className="text-blue-500 hover:text-blue-600"
-                  >
-                    <Pencil className="h-5 w-5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(project._id)}
-                    className="text-red-500 hover:text-red-600"
-                  >
-                    <Trash2 className="h-5 w-5" />
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        ))}
-      </div>
+    <div className="rounded-md border">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Project Name</TableHead>
+            <TableHead>Client</TableHead>
+            <TableHead>Description</TableHead>
+            <TableHead>Status</TableHead>
+            <TableHead className="text-right">Actions</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {projects.map((project) => (
+            <TableRow key={project._id}>
+              {editingProject?._id === project._id ? (
+                <>
+                  <TableCell colSpan={4}>
+                    <div className="space-y-2">
+                      <Input
+                        value={editingProject.name}
+                        onChange={(e) =>
+                          setEditingProject({ ...editingProject, name: e.target.value })
+                        }
+                        placeholder="Project name"
+                      />
+                      <Select
+                        value={editingProject.client}
+                        onValueChange={(value) =>
+                          setEditingProject({ ...editingProject, client: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select client" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {clients.map((client) => (
+                            <SelectItem key={client._id} value={client.name}>
+                              {client.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Textarea
+                        value={editingProject.description}
+                        onChange={(e) =>
+                          setEditingProject({ ...editingProject, description: e.target.value })
+                        }
+                        placeholder="Project description"
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => handleUpdate(editingProject)}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        onClick={() => setEditingProject(null)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </TableCell>
+                </>
+              ) : (
+                <>
+                  <TableCell>
+                    <Link 
+                      href={`/projects/${project._id}`}
+                      className="font-medium text-blue-600 hover:text-blue-800"
+                    >
+                      {project.name}
+                    </Link>
+                  </TableCell>
+                  <TableCell>{project.client}</TableCell>
+                  <TableCell className="max-w-md truncate">
+                    {project.description}
+                  </TableCell>
+                  <TableCell>
+                    <Badge variant={project.isActive ? "success" : "secondary"}>
+                      {project.isActive ? 'Active' : 'Inactive'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <div className="flex justify-end space-x-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditingProject(project)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(project._id)}
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </>
+              )}
+            </TableRow>
+          ))}
+          {projects.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={5} className="text-center text-muted-foreground">
+                No projects found. Click "New Project" to add one.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
     </div>
   );
 };

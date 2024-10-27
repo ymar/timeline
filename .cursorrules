@@ -12,6 +12,8 @@ Naming Conventions
 
 	•	Use lowercase with dashes for directories (e.g., components/auth-wizard).
 	•	Favor named exports for components.
+	•	Follow Next.js App Router conventions: page.tsx, layout.tsx, loading.tsx, error.tsx.
+	•	Group related routes in folders (e.g., app/dashboard/[id]/page.tsx).
 
 TypeScript Usage
 
@@ -21,7 +23,7 @@ TypeScript Usage
 
 Syntax and Formatting
 
-	•	Use the “function” keyword for pure functions.
+	•	Use the "function" keyword for pure functions.
 	•	Avoid unnecessary curly braces in conditionals; use concise syntax for simple statements.
 	•	Use declarative JSX.
 
@@ -50,15 +52,25 @@ Performance Optimization
 	•	Wrap client components in Suspense with fallback.
 	•	Use dynamic loading for non-critical components.
 	•	Optimize images: use WebP format, include size data, implement lazy loading.
+	•	Leverage App Router's built-in optimizations:
+		○	Server Components by default
+		○	Streaming and Suspense
+		○	Route segment prefetching
+		○	Layout-based caching
 
 Key Conventions
 
-	•	Use ‘nuqs’ for URL search parameter state management.
+	•	Use 'nuqs' for URL search parameter state management.
 	•	Optimize Web Vitals (LCP, CLS, FID).
-	•	Limit ‘use client’:
-	•	Favor server components and Next.js SSR.
-	•	Use only for Web API access in small components.
-	•	Avoid for data fetching or state management.
+	•	Limit 'use client':
+		○	Favor server components and Next.js SSR.
+		○	Use only for Web API access in small components.
+		○	Avoid for data fetching or state management.
 	•	Use the db.ts file for centralized database connection management.
+	•	Leverage App Router features:
+		○	Route handlers for API endpoints
+		○	Server actions for form submissions
+		○	Parallel routes for complex layouts
+		○	Intercepting routes for modals
 
-Follow Next.js docs for Data Fetching, Rendering, and Routing.
+Follow Next.js App Router docs for Data Fetching, Rendering, and Routing patterns.

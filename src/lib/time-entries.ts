@@ -1,5 +1,5 @@
 import { startOfWeek, endOfWeek, subDays } from 'date-fns';
-import { connectToDatabase } from './db';
+import { connectToDatabase } from '@/lib/db';
 import { TimeEntry } from '@/models/TimeEntry';
 import { Types } from 'mongoose';
 
@@ -23,20 +23,19 @@ export async function getWeekTimeEntries() {
 
 
 export async function getRecentTimeEntries(days = 7) {
-  await connectToDatabase();
+  const db = await connectToDatabase();
 
   const now = new Date();
   const startDate = subDays(now, days);
 
-
-  const recentEntries = await TimeEntry.find({
-    date: {
+  const entries = await TimeEntry.find({
+    createdAt: {
       $gte: startDate,
       $lte: now,
     },
-  }).lean().sort({ date: -1 });
+  }).sort({ createdAt: -1 });
 
-  return recentEntries;
+  return entries;
 }
 
 export async function createTimeEntry(data: {

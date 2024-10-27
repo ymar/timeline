@@ -1,27 +1,33 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "./globals.css";
-import Navbar from "@/components/Navbar";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import { cn } from '@/lib/utils';
+import '@/styles/globals.css';
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AuthProvider } from '@/components/providers/auth-provider';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Time Tracking App",
-  description: "Track your time and manage projects",
+  title: 'Timeline App',
+  description: 'Timeline management application',
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
-    <html lang="en">
-      <body className={inter.className}>
-        <Navbar />
-        <main className="min-h-screen bg-gray-50 pt-16">
-          {children}
-        </main>
+    <html lang="en" suppressHydrationWarning>
+      <body className={cn(
+        "min-h-screen bg-background font-sans antialiased",
+        inter.className
+      )}>
+        <AuthProvider>
+          <SidebarProvider>
+            {children}
+          </SidebarProvider>
+        </AuthProvider>
       </body>
     </html>
   );
